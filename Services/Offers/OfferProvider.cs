@@ -22,11 +22,7 @@ namespace Courier_Service.Services.Offers
         {
             return _offerRules.FirstOrDefault(r => r.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
         }
-        public void RegisterOffers(IOfferRule rule)
-        {
-            _offerRules.RemoveAll(r => r.Code == rule.Code);
-            _offerRules.Add(rule);
-        }
+        
         public IEnumerable<IOfferRule> GetAllOffers()
         {
             return _offerRules;

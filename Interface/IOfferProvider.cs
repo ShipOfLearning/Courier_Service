@@ -9,8 +9,6 @@ namespace Courier_Service.Interface
     internal interface IOfferProvider
     {
         IOfferRule GetOffer(string code);
-        void RegisterOffers(IOfferRule rule);
         IEnumerable<IOfferRule> GetAllOffers();
-
     }
 }
