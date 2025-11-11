@@ -1,5 +1,6 @@
 ﻿using Courier_Service.Interface;
 using Courier_Service.Model;
+using Courier_Service.Services.Scheduling;
 using System.Globalization;
 namespace Courier_Service
 {
@@ -76,25 +77,64 @@ namespace Courier_Service
                     }
                 }
 
+                var lastLine = Console.ReadLine();
+                int noOfVehicles = 1;
+                decimal maxSpeed = 1;
+                decimal maxCarriableWeight = 0;
+                if (!string.IsNullOrWhiteSpace(lastLine))
+                {
+                    var lp = lastLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (lp.Length >= 3)
+                    {
+                        noOfVehicles = int.Parse(lp[0]);
+                        maxSpeed = decimal.Parse(lp[1], CultureInfo.InvariantCulture);
+                        maxCarriableWeight = decimal.Parse(lp[2], CultureInfo.InvariantCulture);
+                    }
+                }
+
                 //Initialize the Offer Provider and Delivery Cost Calculator
                 IOfferProvider offerProvider = new Services.Offers.OfferProvider();
                 var costCalculator = new Services.Delivery.DeliveryCostCalculator(offerProvider);
 
+                var SP = new List<ScheduledPackage>();
+
                 //Print the calculated discount amount and total cost for each package
-                Console.WriteLine("\nThe <pkg_id> <discount> <total_cost> for all pkg is given bloew");
                 foreach (var pkg in packages)
                 {
                     var deliveryCost = costCalculator.CalculateDeliveryCost(baseCost, pkg);
                     var discount = costCalculator.CalculateDiscount(baseCost, pkg);
                     var totalCost = deliveryCost - discount;
-                    Console.WriteLine($"{pkg.Id} {discount:F2} {totalCost:F2}"); // Format output to 2 decimal places
+                    //Console.WriteLine($"{pkg.Id} {discount:F2} {totalCost:F2}"); // Format output to 2 decimal places                    
+                }
+
+                //Schedule the packages for delivery
+                if (noOfVehicles > 0 && maxSpeed > 0 && maxCarriableWeight > 0)
+                {
+                    var scheduler = new Scheduler(noOfVehicles, maxSpeed, maxCarriableWeight);
+                    var schedPkgs = new List<ScheduledPackage>();
+
+                    foreach (var pkg in packages)
+                    {
+                        var deliveryCost = costCalculator.CalculateDeliveryCost(baseCost, pkg);
+                        var discount = costCalculator.CalculateDiscount(baseCost, pkg);
+                        var total = deliveryCost - discount;
+                        schedPkgs.Add(new ScheduledPackage(pkg.Id, pkg.Weight, pkg.Distance, discount, total, 0m));
+                    }
+
+                    var scheduledPackagesResult = scheduler.Schedule(schedPkgs);
+
+                    Console.WriteLine("\nFinal Output (PackageID | Discount | TotalCost | ETA in Hours):");
+                    foreach (var pkg in scheduledPackagesResult)
+                    {
+                        Console.WriteLine($"{pkg.Id.ToUpper()} {pkg.Discout:F2} {pkg.TotalCost:F2} {pkg.DeliveryTimeInHours:F2}");
+                    }
                 }
             }
 
             catch (Exception)
             {
 
-                throw;
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
     }
