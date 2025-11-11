@@ -98,14 +98,14 @@ namespace Courier_Service
 
                 var SP = new List<ScheduledPackage>();
 
-                //Print the calculated discount amount and total cost for each package
-                foreach (var pkg in packages)
-                {
-                    var deliveryCost = costCalculator.CalculateDeliveryCost(baseCost, pkg);
-                    var discount = costCalculator.CalculateDiscount(baseCost, pkg);
-                    var totalCost = deliveryCost - discount;
-                    //Console.WriteLine($"{pkg.Id} {discount:F2} {totalCost:F2}"); // Format output to 2 decimal places                    
-                }
+                ////Print the calculated discount amount and total cost for each package
+                //foreach (var pkg in packages)
+                //{
+                //    var deliveryCost = costCalculator.CalculateDeliveryCost(baseCost, pkg);
+                //    var discount = costCalculator.CalculateDiscount(baseCost, pkg);
+                //    var totalCost = deliveryCost - discount;
+                //    //Console.WriteLine($"{pkg.Id} {discount:F2} {totalCost:F2}"); // Format output to 2 decimal places                    
+                //}
 
                 //Schedule the packages for delivery
                 if (noOfVehicles > 0 && maxSpeed > 0 && maxCarriableWeight > 0)
@@ -131,7 +131,7 @@ namespace Courier_Service
                 }
             }
 
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 Console.WriteLine("Error: " + ex.Message);
